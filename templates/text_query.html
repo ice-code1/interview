@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Query Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Query Interface</h1>
+        <form id="textQueryForm">
+            <div class="form-group">
+                <label for="query">Enter Product Description:</label>
+                <input type="text" id="query" name="query" required>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="responseContainer" style="display:none;">
+            <h2>Response</h2>
+            <p id="responseText"></p>
+            <h2>Product Details</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stock Code</th>
+                        <th>Description</th>
+                        <th>Unit Price</th>
+                        <th>Country</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        document.getElementById('textQueryForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const query = document.getElementById('query').value;
+            fetch('/product-recommendation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseContainer').style.display = 'block';
+                document.getElementById('responseText').innerText = data.response;
+                const productTableBody = document.getElementById('productTableBody');
+                productTableBody.innerHTML = '';
+                data.products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${product.stock_code}</td><td>${product.description}</td><td>${product.unit_price}</td><td>${product.country}</td>`;
+                    productTableBody.appendChild(row);
+                });
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

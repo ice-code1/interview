@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Query Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        img {
+            max-width: 100%;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Query Interface</h1>
+        <form id="imageForm" enctype="multipart/form-data">
+            <label for="image">Upload image:</label><br>
+            <input type="file" id="image" name="image_data" accept="image/*" required><br><br>
+            <button type="submit">Upload Image</button>
+        </form>
+        <div id="response"></div>
+        <h2>Product Details</h2>
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th>Stock Code</th>
+                    <th>Description</th>
+                    <th>Unit Price</th>
+                    <th>Country</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <!-- Product details will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.getElementById('imageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            fetch('/ocr-handwritten', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResponse(data.response);
+                displayProducts(data.products);
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        function displayResponse(response) {
+            document.getElementById('response').innerText = response;
+        }
+
+        function displayProducts(products) {
+            const tableBody = document.getElementById('productTableBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.stock_code}</td>
+                    <td>${product.description}</td>
+                    <td>${product.unit_price}</td>
+                    <td>${product.country}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
