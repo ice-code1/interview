@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Image Upload Interface</title>
+    <title>Image Upload query</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,12 +18,29 @@
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        form {
+        .form-group {
             margin-bottom: 20px;
         }
-        img {
-            max-width: 100%;
-            margin-bottom: 20px;
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         table {
             width: 100%;
@@ -41,64 +58,44 @@
     </style>
 </head>
 <body>
+    
     <div class="container">
-        <h1>Product Image Upload Interface</h1>
-        <form id="productImageForm" enctype="multipart/form-data">
-            <label for="productImage">Upload product image:</label><br>
-            <input type="file" id="productImage" name="product_image" accept="image/*" required><br><br>
-            <button type="submit">Upload Image</button>
+        <h1>Product Description Query</h1>
+        <form name="image_data" action="/image-upload" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="image_data">Upload Product Image:</label>
+                <input type="file" id="image_data" name="image_data" accept="image/*" required>
+            </div>
+            <button type="submit">Submit</button>
         </form>
-        <div id="response"></div>
-        <h2>Product Details</h2>
-        <table id="productTable">
-            <thead>
-                <tr>
-                    <th>Stock Code</th>
-                    <th>Description</th>
-                    <th>Unit Price</th>
-                    <th>Country</th>
-                </tr>
-            </thead>
-            <tbody id="productTableBody">
-                <!-- Product details will be dynamically added here -->
-            </tbody>
-        </table>
+
+        {% if products %}
+        <div id="responseContainer">
+            <h2>Description</h2>
+            <p>{{ description }}</p>
+            <h2>Product Details</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stock Code</th>
+                        <th>Description</th>
+                        <th>Unit Price</th>
+                        <th>Country</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product['Stock Code'] }}</td>
+                        <td>{{ product['Description'] }}</td>
+                        <td>{{ product['Unit Price'] }}</td>
+                        <td>{{ product['Country'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     </div>
-
-    <script>
-        document.getElementById('productImageForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            fetch('/detect-product', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayResponse(data.response);
-                displayProducts(data.products);
-            })
-            .catch(error => console.error('Error:', error));
-        });
-
-        function displayResponse(response) {
-            document.getElementById('response').innerText = response;
-        }
-
-        function displayProducts(products) {
-            const tableBody = document.getElementById('productTableBody');
-            tableBody.innerHTML = ''; // Clear existing rows
-            products.forEach(product => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${product.stock_code}</td>
-                    <td>${product.description}</td>
-                    <td>${product.unit_price}</td>
-                    <td>${product.country}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-    </script>
 </body>
 </html>

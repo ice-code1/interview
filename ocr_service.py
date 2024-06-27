@@ -3,7 +3,8 @@ from PIL import Image
 
 class OCRService:
     def __init__(self):
-        pass
+        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Update with your Tesseract executable path
+        
 
     def extract_text(self, image_file):
         image = Image.open(image_file)

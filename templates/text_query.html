@@ -60,16 +60,18 @@
 <body>
     <div class="container">
         <h1>Text Query Interface</h1>
-        <form id="textQueryForm">
+        <form name="description" action="/product-recommendation" method="POST">
             <div class="form-group">
-                <label for="query">Enter Product Description:</label>
-                <input type="text" id="query" name="query" required>
+                <label for="description">Enter Product Description:</label>
+                <input type="text" id="description" name="description" required>
             </div>
             <button type="submit">Submit</button>
         </form>
-        <div id="responseContainer" style="display:none;">
+
+        {% if products %}
+        <div id="responseContainer">
             <h2>Response</h2>
-            <p id="responseText"></p>
+            <p>{{ response }}</p>
             <h2>Product Details</h2>
             <table>
                 <thead>
@@ -80,38 +82,19 @@
                         <th>Country</th>
                     </tr>
                 </thead>
-                <tbody id="productTableBody">
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product['Stock Code'] }}</td>
+                        <td>{{ product['Description'] }}</td>
+                        <td>{{ product['Unit Price'] }}</td>
+                        <td>{{ product['Country'] }}</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% endif %}
     </div>
-    <script>
-        document.getElementById('textQueryForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const query = document.getElementById('query').value;
-            fetch('/product-recommendation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ query: query }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('responseContainer').style.display = 'block';
-                document.getElementById('responseText').innerText = data.response;
-                const productTableBody = document.getElementById('productTableBody');
-                productTableBody.innerHTML = '';
-                data.products.forEach(product => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td>${product.stock_code}</td><td>${product.description}</td><td>${product.unit_price}</td><td>${product.country}</td>`;
-                    productTableBody.appendChild(row);
-                });
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
-    </script>
 </body>
 </html>
